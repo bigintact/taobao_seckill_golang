@@ -17,14 +17,14 @@ import (
 //抢购时间和支付密码，请注意，如果是00秒抢购，请在让Second == 60
 const (
 	//抢购的时间
-	buyHour = 23
+	buyHour   = 23
 	buyMinute = 60
 	buySecond = 00
 	//支付密码
 	passWord = `123456`
 )
 
-func main()  {
+func main() {
 	ctx, _ := cdp.NewExecAllocator(
 		context.Background(),
 
@@ -33,7 +33,7 @@ func main()  {
 		append(
 			cdp.DefaultExecAllocatorOptions[:],
 			//如果选择 headless == true, 则会弹出chrome页面
-			cdp.Flag(`headless`, false),
+			//cdp.Flag(`headless`, false),
 			//taobao存在找不到按钮问题
 			//cdp.Flag("start-fullscreen", true),
 		)...,
@@ -54,7 +54,7 @@ func main()  {
 		//判断是否已接近时间
 		currentHour := time.Now().Hour()
 		currentMinute := time.Now().Minute()
-		judgement := (buyHour == currentHour) && (buyMinute - currentMinute <= 2)
+		judgement := (buyHour == currentHour) && (buyMinute-currentMinute <= 2)
 		if judgement {
 			break
 		} else {
@@ -69,7 +69,7 @@ func main()  {
 	for true {
 		//判断是否已到抢购时间的秒
 		currentSecond := time.Now().Second()
-		if currentSecond == buySecond{
+		if currentSecond == buySecond {
 			if err := cdp.Run(ctx, myTasks3()); err != nil {
 				log.Fatal(err)
 				return
@@ -91,6 +91,7 @@ func myTasks1(urlStr string) cdp.Tasks {
 		checkLoginCart(),
 	}
 }
+
 //刷新页面，避免被自动logout
 func myTasks2() cdp.Tasks {
 	return cdp.Tasks{
@@ -100,6 +101,7 @@ func myTasks2() cdp.Tasks {
 		cdp.Click(`#J_SelectAll1`),
 	}
 }
+
 //结算订单
 func myTasks3() cdp.Tasks {
 	return cdp.Tasks{
@@ -116,7 +118,6 @@ func myTasks3() cdp.Tasks {
 		cdp.Sleep(10 * time.Second),
 	}
 }
-
 
 //以下是辅助函数
 //获取二维码
@@ -143,7 +144,7 @@ func getCode() cdp.ActionFunc {
 		var code []byte
 
 		// 2. 截图
-		// 注意这里需要注明直接使用ID选择器来获取元素（chromedp.ByID）
+		// 注意这里需要注明直接使用ID选择器来获取元素（cdp.ByID）
 		if err = cdp.Screenshot(`#content`,
 			&code, cdp.ByID).Do(ctx); err != nil {
 			return
@@ -163,6 +164,7 @@ func getCode() cdp.ActionFunc {
 		return
 	}
 }
+
 //打印二维码
 func printQRCode(code []byte) (err error) {
 	// 1. 因为我们的字节流是图像，所以我们需要先解码字节流
@@ -190,6 +192,7 @@ func printQRCode(code []byte) (err error) {
 	fmt.Println(qr.ToSmallString(false))
 	return
 }
+
 // 检查是否登陆
 func checkLoginStatus() cdp.ActionFunc {
 	return func(ctx context.Context) (err error) {
@@ -206,6 +209,7 @@ func checkLoginStatus() cdp.ActionFunc {
 		return
 	}
 }
+
 //检查是否已经进入购物车
 func checkLoginCart() cdp.ActionFunc {
 	return func(ctx context.Context) (err error) {
@@ -222,4 +226,3 @@ func checkLoginCart() cdp.ActionFunc {
 		return
 	}
 }
-
